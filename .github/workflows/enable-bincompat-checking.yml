@@ -71,15 +71,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - id: check-branch
-        run: |
-          if git show-branch origin/${{ matrix.branch }} ; then
-            echo "valid=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "valid=false" >> "$GITHUB_OUTPUT"
-          fi
       - name: Create file
-        if: steps.check-branch.outputs.valid == 'true'
         run: |
           VERSION=${{ needs.determine_version.outputs.version }}
           VERSION_NO_V=${VERSION#v}
