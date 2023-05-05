@@ -9,6 +9,10 @@ on:
         description: 'Version for which to enable binary compatibility checking'
         require: true
 
+permissions:
+  pull-requests: write
+  contents: write
+
 jobs:
   determine_version:
     name: Determine Version
