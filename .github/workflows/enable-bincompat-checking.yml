@@ -59,7 +59,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          depth: 0
+          fetch-depth: 0
       - id: check-branch
         run: |
           if git show-branch origin/${{ matrix.branch }} ; then
