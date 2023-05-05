@@ -1,0 +1,66 @@
+name: Enable Binary Compatibility Checking
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version for which to enable binary compatibility checking'
+        require: true
+
+jobs:
+  determine_version:
+    name: Determine Version
+    runs-on: ubuntu-latest
+    outputs:
+        version: ${{ steps.dowork.outputs.version }}
+
+    steps:
+      - id: dowork
+        run: |
+          if [[ -z "${{ inputs.version }}" ]]; then
+            echo "version=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+
+  determine_branches:
+    name: Determine Branches
+    runs-on: ubuntu-latest
+    needs: [determine_version]
+    outputs:
+      branches: ${{ steps.determine-branches.outputs.branches }}
+
+    steps:
+      - id: check-valid
+        run: |
+          VERSION=${{ needs.determine_version.outputs.version }}
+          if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "valid=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+          fi
+      - id: determine-branches
+        if: steps.check-valid.outputs.valid == 'true'
+        run: |
+          VERSION=${{ needs.determine_version.outputs.version }}
+          IFS=. read major minor micro <<<"${VERSION##*-}"
+          echo "branches=[\"$major.x\", \"$major.$minor.x\"]" >> "$GITHUB_OUTPUT"
+
+  open_prs:
+    name: Open Pull Requests
+    runs-on: ubuntu-latest
+    needs: [determine_version, determine_branches]
+    strategy:
+      matrix:
+        branch: ${{ fromJson(needs.determine_branches.outputs.branches) }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ matrix.branch }}
+      - run: |
+          echo "MYBRANCH = ${{ matrix.branch }}"
+          git status
+          git branch
