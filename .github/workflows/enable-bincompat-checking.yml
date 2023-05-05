@@ -62,7 +62,7 @@ jobs:
           depth: 0
       - id: check-branch
         run: |
-          if [[ git show-branch origin/${{ matrix.branch }} ]]; then
+          if git show-branch origin/${{ matrix.branch }} ; then
             echo "valid=true" >> "$GITHUB_OUTPUT"
           else
             echo "valid=false" >> "$GITHUB_OUTPUT"
