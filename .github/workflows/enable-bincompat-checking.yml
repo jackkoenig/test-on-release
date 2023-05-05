@@ -59,8 +59,26 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ matrix.branch }}
-      - run: |
-          echo "MYBRANCH = ${{ matrix.branch }}"
-          git status
-          git branch
+          depth: 0
+      - id: check-branch
+        run: |
+          if [[ git show-branch origin/${{ matrix.branch }} ]]; then
+            echo "valid=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Create file
+        if: steps.check-branch.outputs.valid == 'true'
+        run: |
+          echo ${{ needs.determine_version.outputs.version }} >> file.txt
+          echo "\n" >> file.txt
+      - name: Open PR
+        if: steps.check-branch.outputs.valid == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          base: ${{ matrix.branch }}
+          branch: bincompat/${{ matrix.branch }}/${{ needs.determine_version.outputs.version }}
+          title: "[${{ matrix.branch }}] Enable MiMa for ${{ needs.determine_version.outputs.version }}"
+          commit-message: "Enable MiMa for ${{ needs.determine_version.outputs.version }}"
+          body: "Enable MiMa for ${{ needs.determine_version.outputs.version }}"
+
