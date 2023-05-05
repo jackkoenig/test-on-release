@@ -75,7 +75,6 @@ jobs:
         if: steps.check-branch.outputs.valid == 'true'
         run: |
           echo ${{ needs.determine_version.outputs.version }} >> file.txt
-          echo "\n" >> file.txt
       - name: Open PR
         if: steps.check-branch.outputs.valid == 'true'
         uses: peter-evans/create-pull-request@v5
