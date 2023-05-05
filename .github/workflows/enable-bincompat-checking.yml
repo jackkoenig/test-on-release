@@ -77,7 +77,6 @@ jobs:
           VERSION_NO_V=${VERSION#v}
           echo $VERSION_NO_V >> file.txt
       - name: Open PR
-        if: steps.check-branch.outputs.valid == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
           base: ${{ matrix.branch }}
