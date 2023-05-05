@@ -55,11 +55,14 @@ jobs:
           touch branches.txt
           STABLE=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin/*.x)
           for branch in $STABLE origin/main; do
+            echo "Checking $branch"
             if git merge-base --is-ancestor $VERSION $branch; then
               echo ${branch#origin/} >> branches.txt
+              cat branches.txt
             fi
           done
-          echo "branches=$(jq -nR [inputs])" >> "$GITHUB_OUTPUT"
+          cat branches.txt
+          echo "branches=$(jq -nR [inputs] branches.txt)" >> "$GITHUB_OUTPUT"
 
   open_prs:
     name: Open Pull Requests
