@@ -84,4 +84,5 @@ jobs:
           title: "[${{ matrix.branch }}] Enable MiMa for ${{ needs.determine_version.outputs.version }}"
           commit-message: "Enable MiMa for ${{ needs.determine_version.outputs.version }}"
           body: "Enable MiMa for ${{ needs.determine_version.outputs.version }}"
+          token: ${{ secrets.PR_TOKEN }}
 
